@@ -67,7 +67,7 @@ Você vai trabalhar com:
 
 ---
 
-## 🗄️ Banco de dados
+## 🗄️ Banco de dados -> Vou tentar utilizar sessões, creio que no momento seja mais fácil a implementação de Sessões do que um DB.
 
 Você pode usar:
 
