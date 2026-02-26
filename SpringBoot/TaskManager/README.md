@@ -67,7 +67,7 @@ Você vai trabalhar com:
 
 ---
 
-## 🗄️ Banco de dados -> Vou tentar utilizar sessões, creio que no momento seja mais fácil a implementação de Sessões do que um DB.
+## 🗄️ Banco de dados -> Vou usar JTW para autenticação e armazenamento se informações do usuário. Vou tentar utilizar arquivos JSON para armazenamento dos dados das taredas.
 
 Você pode usar:
 
