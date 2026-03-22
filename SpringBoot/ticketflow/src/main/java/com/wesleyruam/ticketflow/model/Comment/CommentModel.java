@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,4 +39,9 @@ public class CommentModel {
     @ManyToOne
     @JoinColumn(name = "ticket_id")
     private TicketModel ticket;
+
+    @PrePersist
+    protected void onCreate(){
+        createdAt = LocalDateTime.now();
+    }
 }

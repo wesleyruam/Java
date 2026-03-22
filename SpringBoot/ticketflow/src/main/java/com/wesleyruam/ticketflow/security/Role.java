@@ -13,15 +13,15 @@ public enum Role {
         Permission.DELETE_TICKET,
         Permission.VIEW_ALL_TICKETS,
         Permission.ADD_COMMENT,
-        Permission.DELETE_COMMENT
+        Permission.DELETE_COMMENT,
+        Permission.EDIT_ANY_COMMENT
     ),
     
     MANAGER(
         Permission.CREATE_TICKET,
         Permission.EDIT_TICKET,
         Permission.VIEW_ALL_TICKETS,
-        Permission.ADD_COMMENT,
-        Permission.DELETE_COMMENT
+        Permission.ADD_COMMENT
     ),
     
     USER(

@@ -15,5 +15,6 @@ public enum Permission {
     
     // Comment permissions
     ADD_COMMENT,
-    DELETE_COMMENT
+    DELETE_COMMENT,
+    EDIT_ANY_COMMENT
 }

@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wesleyruam.ticketflow.dto.ServiceResponse;
+import com.wesleyruam.ticketflow.dto.Comment.CommentResponseDTO;
 import com.wesleyruam.ticketflow.dto.Ticket.CreateTicketDTO;
 import com.wesleyruam.ticketflow.dto.Ticket.TicketResponseDTO;
 import com.wesleyruam.ticketflow.dto.Ticket.UpdateTicketDTO;
+import com.wesleyruam.ticketflow.service.Comment.CommentService;
 import com.wesleyruam.ticketflow.service.Ticket.TicketService;
 
 @RestController
@@ -25,6 +27,9 @@ import com.wesleyruam.ticketflow.service.Ticket.TicketService;
 public class TicketController {
     @Autowired
     private TicketService ticketService;
+
+    @Autowired 
+    private CommentService commentService;
 
     @PostMapping
     public ResponseEntity<ServiceResponse<TicketResponseDTO>> createTicket(@RequestBody CreateTicketDTO createTicketDTO){
@@ -80,5 +85,16 @@ public class TicketController {
         }else{
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("{ticketId}/comments")
+    public  ResponseEntity<ServiceResponse<List<CommentResponseDTO>>> getCommentsByTicketId(@PathVariable Long ticketId){
+        ServiceResponse<List<CommentResponseDTO>> response = commentService.getCommentsByTicketId(ticketId);
+
+        if (response.isSuccess()){
+            return ResponseEntity.ok(response);
+        }else{
+            return ResponseEntity.badRequest().body(response);
+        }  
     }
 }
