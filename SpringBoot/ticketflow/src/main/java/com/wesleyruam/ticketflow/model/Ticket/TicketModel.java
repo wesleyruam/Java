@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,24 +27,33 @@ public class TicketModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String title;
+    
+    @NotBlank
     private String description;
 
+    @NotBlank
     private LocalDateTime createdAt;
+    
+    @NotBlank
     private LocalDateTime updatedAt;
 
-    private PrioritiesEnum prority;
+    @NotBlank
+    private PrioritiesEnum priority;
+    
+    @NotBlank
     private StatusEnum status;
 
     @ManyToOne
-    private UserModel requestingUser;
+    private UserModel requestingUser; // referência ao usuário que abriu o ticket.
 
     @ManyToOne
-    private UserModel responsibleUser;
+    private UserModel responsibleUser; // referência ao atendente designado (opcional).
 
     @PrePersist
     protected void onCreate(){
-        prority = PrioritiesEnum.BAIXA;
+        priority = PrioritiesEnum.BAIXA;
         status = StatusEnum.ABERTO;
     }
 }
