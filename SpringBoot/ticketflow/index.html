@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>TicketFlow - Sistema de Gerenciamento de Tickets</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,170.7C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .priority-high {
+            background: linear-gradient(135deg, #f56565, #ed64a6);
+            color: white;
+        }
+        
+        .priority-medium {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+        
+        .priority-low {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+        
+        .status-open {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+        
+        .status-progress {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+        
+        .status-closed {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+        
+        .status-canceled {
+            background: linear-gradient(135deg, #a0aec0, #718096);
+            color: white;
+        }
+        
+        .role-admin {
+            background: linear-gradient(135deg, #f56565, #ed64a6);
+            color: white;
+        }
+        
+        .role-manager {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+        
+        .role-user {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #667eea;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .glass-effect {
+                padding: 1rem;
+            }
+            
+            table {
+                font-size: 0.875rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .stat-card p.text-3xl {
+                font-size: 1.5rem;
+            }
+        }
+        
+        .comment-item {
+            transition: all 0.2s ease;
+        }
+        
+        .comment-item:hover {
+            background-color: #f9fafb;
+            transform: translateX(5px);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .my-ticket {
+            background-color: #fef3c7;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .other-ticket {
+            background-color: white;
+        }
+        
+        .edit-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="scrollbar-custom">
+
+    <!-- Login Container -->
+    <div id="loginContainer" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass-effect p-6 md:p-12 w-full max-w-md animate__animated animate__fadeInUp">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
+                    <i class="fas fa-ticket-alt text-3xl md:text-4xl text-white"></i>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    TicketFlow
+                </h1>
+                <p class="text-gray-600 mt-2 text-sm md:text-base">Sistema de Gerenciamento de Tickets</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-4 md:space-y-6">
+                <div class="relative">
+                    <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="email" id="loginEmail" required 
+                           class="w-full pl-10 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm md:text-base"
+                           placeholder="seu@email.com">
+                </div>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" id="loginPassword" required 
+                           class="w-full pl-10 pr-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm md:text-base"
+                           placeholder="Sua senha">
+                </div>
+                <button type="submit" id="loginButton"
+                        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 md:py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-105 text-sm md:text-base">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Entrar no Sistema
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-xs md:text-sm text-gray-500">
+                <p>Demo: admin@ticketflow.com / admin123</p>
+                <p class="mt-1">usuário@ticketflow.com / user123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="hidden min-h-screen p-3 md:p-8">
+        <!-- Header -->
+        <div class="glass-effect p-4 md:p-6 mb-4 md:mb-6 animate__animated animate__fadeInDown">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                        <i class="fas fa-ticket-alt text-xl md:text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-gray-800">TicketFlow</h1>
+                        <p class="text-xs md:text-sm text-gray-500">Gerencie seus tickets de forma eficiente</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                    <div class="flex items-center gap-2 md:gap-3 bg-white px-3 md:px-4 py-2 rounded-full shadow-md">
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm md:text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800 text-sm md:text-base" id="userName"></p>
+                            <p class="text-xs" id="userRole"></p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 md:px-4 py-2 rounded-lg transition transform hover:scale-105 text-sm md:text-base">
+                        <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i> <span class="hidden sm:inline">Sair</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-6" id="statsContainer">
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs md:text-sm">Total</p>
+                        <p class="text-xl md:text-3xl font-bold text-gray-800" id="totalTickets">0</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-purple-100 rounded-full">
+                        <i class="fas fa-ticket-alt text-purple-600 text-lg md:text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs md:text-sm">Abertos</p>
+                        <p class="text-xl md:text-3xl font-bold text-gray-800" id="openTickets">0</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-blue-100 rounded-full">
+                        <i class="fas fa-folder-open text-blue-600 text-lg md:text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs md:text-sm">Andamento</p>
+                        <p class="text-xl md:text-3xl font-bold text-gray-800" id="progressTickets">0</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-orange-100 rounded-full">
+                        <i class="fas fa-spinner text-orange-600 text-lg md:text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs md:text-sm">Fechados</p>
+                        <p class="text-xl md:text-3xl font-bold text-gray-800" id="closedTickets">0</p>
+                    </div>
+                    <div class="p-2 md:p-3 bg-green-100 rounded-full">
+                        <i class="fas fa-check-circle text-green-600 text-lg md:text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Ticket Section -->
+        <div class="glass-effect p-4 md:p-6 mb-4 md:mb-6">
+            <h2 class="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-purple-600"></i>
+                Criar Novo Ticket
+            </h2>
+            <div class="info-box rounded-lg p-3 mb-4 text-sm">
+                <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                O ticket será atribuído automaticamente a você como responsável
+            </div>
+            <form id="createTicketForm" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 md:mb-2">Título *</label>
+                    <input type="text" id="ticketTitle" required 
+                           class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base"
+                           placeholder="Digite o título do ticket">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 md:mb-2">Descrição *</label>
+                    <textarea id="ticketDescription" rows="4" required 
+                              class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base"
+                              placeholder="Descreva detalhadamente o problema ou solicitação"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 md:mb-2">Prioridade *</label>
+                    <select id="ticketPriority" class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                        <option value="BAIXA">🔵 Baixa</option>
+                        <option value="MEDIA">🟡 Média</option>
+                        <option value="ALTA">🔴 Alta</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition text-sm md:text-base">
+                        <i class="fas fa-paper-plane mr-2"></i> Criar Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Admin Actions Section -->
+        <div id="adminActions" class="glass-effect p-4 md:p-6 mb-4 md:mb-6 hidden">
+            <h2 class="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center gap-2">
+                <i class="fas fa-user-plus text-purple-600"></i>
+                Ações Administrativas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">Criar Novo Usuário</h3>
+                    <form id="createUserForm" class="space-y-3">
+                        <div>
+                            <input type="text" id="newUserName" required placeholder="Nome completo"
+                                   class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                        </div>
+                        <div>
+                            <input type="email" id="newUserEmail" required placeholder="Email"
+                                   class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                        </div>
+                        <div>
+                            <input type="password" id="newUserPassword" required placeholder="Senha"
+                                   class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                        </div>
+                        <div>
+                            <select id="newUserRole" class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                                <option value="USER">Usuário Comum</option>
+                                <option value="MANAGER">Gerente</option>
+                                <option value="ADMIN">Administrador</option>
+                            </select>
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition text-sm md:text-base">
+                            <i class="fas fa-user-plus mr-2"></i> Criar Usuário
+                        </button>
+                    </form>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">Adicionar Comentário Rápido</h3>
+                    <form id="quickCommentForm" class="space-y-3">
+                        <div>
+                            <input type="number" id="quickTicketId" required placeholder="ID do Ticket"
+                                   class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base">
+                        </div>
+                        <div>
+                            <textarea id="quickCommentContent" rows="3" required placeholder="Digite seu comentário..."
+                                      class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm md:text-base"></textarea>
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition text-sm md:text-base">
+                            <i class="fas fa-comment mr-2"></i> Adicionar Comentário
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="glass-effect p-4 md:p-6 mb-4 md:mb-6 overflow-x-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+                <h2 class="text-lg md:text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-list-alt text-purple-600"></i>
+                    Todos os Tickets
+                </h2>
+                <div class="flex gap-2 text-xs">
+                    <span class="px-2 py-1 bg-yellow-100 rounded-full">🟡 Seus tickets</span>
+                    <span class="px-2 py-1 bg-gray-100 rounded-full">⚪ Tickets de outros</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[800px]">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">ID</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Título</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Prioridade</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Status</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Solicitante</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Responsável</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-8">
+                                <div class="loading-spinner mx-auto"></div>
+                                <p class="mt-2 text-gray-500 text-sm">Carregando tickets...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Table (Admin Only) -->
+        <div id="usersSection" class="glass-effect p-4 md:p-6 hidden overflow-x-auto">
+            <h2 class="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center gap-2">
+                <i class="fas fa-users text-purple-600"></i>
+                Gerenciar Usuários
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[600px]">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">ID</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Nome</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Email</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Role</th>
+                            <th class="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-700">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Ticket Details and Comments -->
+    <div id="modal" class="fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all">
+            <div class="sticky top-0 bg-white p-4 md:p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg md:text-xl font-bold" id="modalTitle"></h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl md:text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 md:p-6" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+        let currentUser = null;
+        const API_URL = 'http://localhost:8080';
+
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                Swal.fire('Erro', 'Por favor, preencha todos os campos!', 'error');
+                return;
+            }
+            
+            const loginButton = document.getElementById('loginButton');
+            const originalText = loginButton.innerHTML;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Entrando...';
+            loginButton.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                console.log('Login response:', result);
+                
+                if (result.success && result.data) {
+                    authToken = result.data.token;
+                    currentUser = result.data;
+                    
+                    document.getElementById('userName').textContent = currentUser.name;
+                    const roleSpan = document.getElementById('userRole');
+                    roleSpan.textContent = currentUser.role;
+                    roleSpan.className = `text-xs font-semibold px-2 py-1 rounded-full role-${currentUser.role.toLowerCase()}`;
+                    
+                    document.getElementById('loginContainer').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    
+                    if (currentUser.role === 'ADMIN') {
+                        document.getElementById('usersSection').classList.remove('hidden');
+                        document.getElementById('adminActions').classList.remove('hidden');
+                    }
+                    
+                    await loadAllData();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Bem-vindo!',
+                        text: `Login realizado com sucesso, ${currentUser.name}!`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('Erro de Login', result.message || 'Email ou senha inválidos!', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Swal.fire('Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique se a API está rodando em http://localhost:8080', 'error');
+            } finally {
+                loginButton.innerHTML = originalText;
+                loginButton.disabled = false;
+            }
+        });
+
+        // Create User (Admin only)
+        document.getElementById('createUserForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                name: document.getElementById('newUserName').value,
+                email: document.getElementById('newUserEmail').value,
+                password: document.getElementById('newUserPassword').value,
+                role: document.getElementById('newUserRole').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('Sucesso!', 'Usuário criado com sucesso!', 'success');
+                    document.getElementById('createUserForm').reset();
+                    await loadUsers();
+                } else {
+                    Swal.fire('Erro', result.message || 'Erro ao criar usuário!', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao criar usuário!', 'error');
+            }
+        });
+        
+        // Quick Comment
+        document.getElementById('quickCommentForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ticketId = document.getElementById('quickTicketId').value;
+            const content = document.getElementById('quickCommentContent').value;
+            
+            if (!ticketId || !content) {
+                Swal.fire('Erro', 'Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            const commentData = {
+                content: content,
+                userId: currentUser.userId,
+                ticketId: parseInt(ticketId)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(commentData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('Sucesso!', 'Comentário adicionado!', 'success');
+                    document.getElementById('quickCommentForm').reset();
+                    await loadTickets();
+                } else {
+                    Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+            }
+        });
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([
+                loadUsers(),
+                loadTickets()
+            ]);
+        }
+        
+        // Load Users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_URL}/api/user`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    const tbody = document.getElementById('usersTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        result.data.forEach(user => {
+                            const row = tbody.insertRow();
+                            row.innerHTML = `
+                                <td class="px-3 md:px-4 py-2 text-sm">${user.id}</td>
+                                <td class="px-3 md:px-4 py-2 text-sm font-medium">${user.name}</td>
+                                <td class="px-3 md:px-4 py-2 text-sm">${user.email}</td>
+                                <td class="px-3 md:px-4 py-2"><span class="status-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
+                                <td class="px-3 md:px-4 py-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="editUser(${user.id})" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        ${currentUser.role === 'ADMIN' && user.id !== currentUser.userId ? 
+                                            `<button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-800">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                    </div>
+                                </td>
+                            `;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+            }
+        }
+        
+        // Load Tickets - Show ALL tickets
+        async function loadTickets() {
+            try {
+                const response = await fetch(`${API_URL}/api/ticket`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    const tbody = document.getElementById('ticketsTableBody');
+                    tbody.innerHTML = '';
+                    
+                    let total = 0, open = 0, progress = 0, closed = 0;
+                    
+                    // Show ALL tickets (no filter)
+                    result.data.forEach(ticket => {
+                        total++;
+                        if (ticket.status === 'ABERTO') open++;
+                        else if (ticket.status === 'EM_ANDAMENTO') progress++;
+                        else if (ticket.status === 'FECHADO') closed++;
+                        
+                        const priorityClass = ticket.prority === 'ALTA' ? 'priority-high' : 
+                                            (ticket.prority === 'MEDIA' ? 'priority-medium' : 'priority-low');
+                        const statusClass = ticket.status === 'ABERTO' ? 'status-open' :
+                                          (ticket.status === 'EM_ANDAMENTO' ? 'status-progress' :
+                                          (ticket.status === 'FECHADO' ? 'status-closed' : 'status-canceled'));
+                        
+                        // Check if current user is the responsible for this ticket
+                        const isMyTicket = ticket.responsibleUserName === currentUser.name;
+                        const rowClass = isMyTicket ? 'my-ticket' : 'other-ticket';
+                        
+                        // Check if user can edit (only if it's their ticket OR if they're ADMIN)
+                        const canEdit = isMyTicket || currentUser.role === 'ADMIN';
+                        
+                        const row = tbody.insertRow();
+                        row.className = rowClass;
+                        row.style.transition = 'all 0.3s ease';
+                        row.innerHTML = `
+                            <td class="px-3 md:px-4 py-2 text-sm font-medium">#${ticket.id}${isMyTicket ? ' <span class="text-xs text-yellow-600">(Seu)</span>' : ''}</td>
+                            <td class="px-3 md:px-4 py-2">
+                                <div>
+                                    <p class="font-medium text-sm md:text-base">${ticket.title}</p>
+                                    <p class="text-xs text-gray-500 truncate max-w-[200px] md:max-w-xs">${ticket.description}</p>
+                                </div>
+                            </td>
+                            <td class="px-3 md:px-4 py-2"><span class="status-badge ${priorityClass} text-xs">${ticket.prority}</span></td>
+                            <td class="px-3 md:px-4 py-2"><span class="status-badge ${statusClass} text-xs">${ticket.status}</span></td>
+                            <td class="px-3 md:px-4 py-2 text-sm">${ticket.requestingUserName}</td>
+                            <td class="px-3 md:px-4 py-2 text-sm">${ticket.responsibleUserName}</td>
+                            <td class="px-3 md:px-4 py-2">
+                                <div class="flex gap-2 flex-wrap">
+                                    <button onclick="viewTicketDetails(${ticket.id})" class="text-green-600 hover:text-green-800" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    ${canEdit ? 
+                                        `<button onclick="editTicket(${ticket.id})" class="text-blue-600 hover:text-blue-800" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>` : 
+                                        `<button class="text-gray-400 cursor-not-allowed" disabled title="Você só pode editar seus próprios tickets">
+                                            <i class="fas fa-edit"></i>
+                                        </button>`
+                                    }
+                                    <button onclick="addCommentToTicket(${ticket.id})" class="text-purple-600 hover:text-purple-800" title="Adicionar comentário">
+                                        <i class="fas fa-comment"></i>
+                                    </button>
+                                    ${currentUser.role === 'ADMIN' ? 
+                                        `<button onclick="deleteTicket(${ticket.id})" class="text-red-600 hover:text-red-800" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''
+                                    }
+                                </div>
+                            </td>
+                        `;
+                    });
+                    
+                    document.getElementById('totalTickets').textContent = total;
+                    document.getElementById('openTickets').textContent = open;
+                    document.getElementById('progressTickets').textContent = progress;
+                    document.getElementById('closedTickets').textContent = closed;
+                    
+                    if (total === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-gray-500">
+                                    <i class="fas fa-ticket-alt text-4xl mb-2"></i>
+                                    <p>Nenhum ticket encontrado</p>
+                                    <p class="text-sm mt-1">Crie o primeiro ticket!</p>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar tickets:', error);
+            }
+        }
+        
+        // View Ticket Details with Comments
+        window.viewTicketDetails = async (ticketId) => {
+            try {
+                const [ticketResponse, commentsResponse] = await Promise.all([
+                    fetch(`${API_URL}/api/ticket/${ticketId}`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    }),
+                    fetch(`${API_URL}/api/ticket/${ticketId}/comments`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    })
+                ]);
+                
+                const ticketResult = await ticketResponse.json();
+                const commentsResult = await commentsResponse.json();
+                
+                if (ticketResult.success) {
+                    const ticket = ticketResult.data;
+                    const comments = commentsResult.success ? commentsResult.data : [];
+                    const isMyTicket = ticket.responsibleUserName === currentUser.name;
+                    
+                    const priorityClass = ticket.prority === 'ALTA' ? 'priority-high' : 
+                                        (ticket.prority === 'MEDIA' ? 'priority-medium' : 'priority-low');
+                    const statusClass = ticket.status === 'ABERTO' ? 'status-open' :
+                                      (ticket.status === 'EM_ANDAMENTO' ? 'status-progress' :
+                                      (ticket.status === 'FECHADO' ? 'status-closed' : 'status-canceled'));
+                    
+                    let commentsHtml = '';
+                    if (comments.length > 0) {
+                        commentsHtml = `
+                            <div class="mt-6">
+                                <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                                    <i class="fas fa-comments text-purple-600"></i>
+                                    Comentários (${comments.length})
+                                </h4>
+                                <div class="space-y-3 max-h-96 overflow-y-auto">
+                                    ${comments.map(comment => `
+                                        <div class="comment-item bg-gray-50 rounded-lg p-3 fade-in">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <i class="fas fa-user-circle text-purple-600"></i>
+                                                <span class="font-semibold text-sm">${comment.authorName}</span>
+                                                <span class="text-xs text-gray-500">${new Date(comment.createdAt).toLocaleString()}</span>
+                                            </div>
+                                            <p class="text-gray-700 text-sm">${comment.content}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        commentsHtml = `
+                            <div class="mt-6 text-center text-gray-500">
+                                <i class="fas fa-comment-slash text-3xl mb-2"></i>
+                                <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+                            </div>
+                        `;
+                    }
+                    
+                    document.getElementById('modalTitle').textContent = `Ticket #${ticket.id} - ${ticket.title}`;
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="space-y-4">
+                            ${isMyTicket ? '<div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded"><i class="fas fa-user-check text-yellow-600 mr-2"></i>Este é seu ticket</div>' : ''}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label>
+                                    <span class="status-badge ${priorityClass}">${ticket.prority}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <span class="status-badge ${statusClass}">${ticket.status}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Solicitante</label>
+                                    <p class="text-gray-900">${ticket.requestingUserName}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Responsável</label>
+                                    <p class="text-gray-900">${ticket.responsibleUserName}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                    <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">${ticket.description}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Criado em</label>
+                                    <p class="text-gray-600 text-sm">${new Date(ticket.createdAt).toLocaleString()}</p>
+                                </div>
+                                ${ticket.updatedAt ? `
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Última atualização</label>
+                                    <p class="text-gray-600 text-sm">${new Date(ticket.updatedAt).toLocaleString()}</p>
+                                </div>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-4">
+                                <h4 class="font-bold mb-3 flex items-center gap-2">
+                                    <i class="fas fa-plus-circle text-green-600"></i>
+                                    Adicionar Comentário
+                                </h4>
+                                <form id="modalCommentForm" class="space-y-3">
+                                    <textarea id="modalCommentContent" rows="3" required 
+                                              class="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
+                                              placeholder="Digite seu comentário..."></textarea>
+                                    <button type="submit" 
+                                            class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition">
+                                        <i class="fas fa-paper-plane mr-2"></i> Enviar Comentário
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            ${commentsHtml}
+                        </div>
+                    `;
+                    
+                    document.getElementById('modal').classList.remove('hidden');
+                    document.getElementById('modal').classList.add('flex');
+                    
+                    // Add comment form handler
+                    document.getElementById('modalCommentForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const content = document.getElementById('modalCommentContent').value;
+                        
+                        if (!content) {
+                            Swal.fire('Erro', 'Digite um comentário!', 'error');
+                            return;
+                        }
+                        
+                        const commentData = {
+                            content: content,
+                            userId: currentUser.userId,
+                            ticketId: ticketId
+                        };
+                        
+                        try {
+                            const response = await fetch(`${API_URL}/api/comment`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${authToken}`
+                                },
+                                body: JSON.stringify(commentData)
+                            });
+                            
+                            const result = await response.json();
+                            if (result.success) {
+                                Swal.fire('Sucesso!', 'Comentário adicionado!', 'success');
+                                closeModal();
+                                await loadTickets();
+                            } else {
+                                Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Erro:', error);
+                            Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao carregar detalhes do ticket!', 'error');
+            }
+        };
+        
+        // Add Comment to Ticket (quick action)
+        window.addCommentToTicket = async (ticketId) => {
+            const { value: comment } = await Swal.fire({
+                title: 'Adicionar Comentário',
+                input: 'textarea',
+                inputLabel: 'Digite seu comentário',
+                inputPlaceholder: 'Escreva aqui...',
+                inputAttributes: {
+                    'aria-label': 'Digite seu comentário'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Enviar',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (comment) {
+                const commentData = {
+                    content: comment,
+                    userId: currentUser.userId,
+                    ticketId: ticketId
+                };
+                
+                try {
+                    const response = await fetch(`${API_URL}/api/comment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(commentData)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire('Sucesso!', 'Comentário adicionado!', 'success');
+                        await loadTickets();
+                    } else {
+                        Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    Swal.fire('Erro', 'Erro ao adicionar comentário!', 'error');
+                }
+            }
+        };
+        
+        // Create Ticket
+        document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ticketData = {
+                title: document.getElementById('ticketTitle').value,
+                description: document.getElementById('ticketDescription').value,
+                priority: document.getElementById('ticketPriority').value,
+                requestingUserId: currentUser.userId,
+                responsibleUserId: currentUser.userId // Responsável é o próprio usuário logado
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/ticket`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(ticketData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('Sucesso!', 'Ticket criado com sucesso!', 'success');
+                    document.getElementById('createTicketForm').reset();
+                    await loadTickets();
+                } else {
+                    Swal.fire('Erro', 'Erro ao criar ticket!', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao criar ticket!', 'error');
+            }
+        });
+        
+        // Edit User
+        window.editUser = async (userId) => {
+            try {
+                const response = await fetch(`${API_URL}/api/user/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    const user = result.data;
+                    document.getElementById('modalTitle').textContent = 'Editar Usuário';
+                    document.getElementById('modalBody').innerHTML = `
+                        <form id="editUserForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Nome</label>
+                                <input type="text" id="editName" value="${user.name}" 
+                                       class="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Email</label>
+                                <input type="email" id="editEmail" value="${user.email}"
+                                       class="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Role</label>
+                                <select id="editRole" class="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                                    <option value="USER" ${user.role === 'USER' ? 'selected' : ''}>Usuário</option>
+                                    <option value="MANAGER" ${user.role === 'MANAGER' ? 'selected' : ''}>Gerente</option>
+                                    <option value="ADMIN" ${user.role === 'ADMIN' ? 'selected' : ''}>Administrador</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 rounded-lg">
+                                Salvar Alterações
+                            </button>
+                        </form>
+                    `;
+                    document.getElementById('modal').classList.remove('hidden');
+                    document.getElementById('modal').classList.add('flex');
+                    
+                    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const updateData = {
+                            name: document.getElementById('editName').value,
+                            email: document.getElementById('editEmail').value,
+                            role: document.getElementById('editRole').value
+                        };
+                        
+                        const updateResponse = await fetch(`${API_URL}/api/user/${userId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+                        
+                        const updateResult = await updateResponse.json();
+                        if (updateResult.success) {
+                            Swal.fire('Sucesso!', 'Usuário atualizado!', 'success');
+                            closeModal();
+                            await loadAllData();
+                        } else {
+                            Swal.fire('Erro', 'Erro ao atualizar usuário!', 'error');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao carregar usuário!', 'error');
+            }
+        };
+        
+        // Edit Ticket - Only if user is responsible OR admin
+        window.editTicket = async (ticketId) => {
+            try {
+                const response = await fetch(`${API_URL}/api/ticket/${ticketId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    const ticket = result.data;
+                    const isMyTicket = ticket.responsibleUserName === currentUser.name;
+                    
+                    // Check permission
+                    if (!isMyTicket && currentUser.role !== 'ADMIN') {
+                        Swal.fire('Acesso Negado', 'Você só pode editar seus próprios tickets!', 'error');
+                        return;
+                    }
+                    
+                    document.getElementById('modalTitle').textContent = 'Editar Ticket';
+                    document.getElementById('modalBody').innerHTML = `
+                        <form id="editTicketForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Título</label>
+                                <input type="text" id="editTitle" value="${ticket.title}"
+                                       class="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Descrição</label>
+                                <textarea id="editDescription" rows="3"
+                                          class="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">${ticket.description}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Prioridade</label>
+                                <select id="editPriority" class="w-full px-3 md:px-4 py-2 border rounded-lg">
+                                    <option value="BAIXA" ${ticket.prority === 'BAIXA' ? 'selected' : ''}>Baixa</option>
+                                    <option value="MEDIA" ${ticket.prority === 'MEDIA' ? 'selected' : ''}>Média</option>
+                                    <option value="ALTA" ${ticket.prority === 'ALTA' ? 'selected' : ''}>Alta</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Status</label>
+                                <select id="editStatus" class="w-full px-3 md:px-4 py-2 border rounded-lg">
+                                    <option value="ABERTO" ${ticket.status === 'ABERTO' ? 'selected' : ''}>Aberto</option>
+                                    <option value="EM_ANDAMENTO" ${ticket.status === 'EM_ANDAMENTO' ? 'selected' : ''}>Em Andamento</option>
+                                    <option value="FECHADO" ${ticket.status === 'FECHADO' ? 'selected' : ''}>Fechado</option>
+                                    <option value="CANCELADO" ${ticket.status === 'CANCELADO' ? 'selected' : ''}>Cancelado</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 rounded-lg">
+                                Salvar Alterações
+                            </button>
+                        </form>
+                    `;
+                    document.getElementById('modal').classList.remove('hidden');
+                    document.getElementById('modal').classList.add('flex');
+                    
+                    document.getElementById('editTicketForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const updateData = {
+                            title: document.getElementById('editTitle').value,
+                            description: document.getElementById('editDescription').value,
+                            priority: document.getElementById('editPriority').value,
+                            status: document.getElementById('editStatus').value
+                        };
+                        
+                        const updateResponse = await fetch(`${API_URL}/api/ticket/${ticketId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+                        
+                        const updateResult = await updateResponse.json();
+                        if (updateResult.success) {
+                            Swal.fire('Sucesso!', 'Ticket atualizado!', 'success');
+                            closeModal();
+                            await loadTickets();
+                        } else {
+                            Swal.fire('Erro', 'Erro ao atualizar ticket!', 'error');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                Swal.fire('Erro', 'Erro ao carregar ticket!', 'error');
+            }
+        };
+        
+        // Delete User
+        window.deleteUser = async (userId) => {
+            const result = await Swal.fire({
+                title: 'Tem certeza?',
+                text: 'Esta ação não poderá ser desfeita!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_URL}/api/user/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Excluído!', 'Usuário excluído com sucesso!', 'success');
+                        await loadAllData();
+                    } else {
+                        Swal.fire('Erro!', 'Erro ao excluir usuário!', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Erro!', 'Erro ao excluir usuário!', 'error');
+                }
+            }
+        };
+        
+        // Delete Ticket (Admin only)
+        window.deleteTicket = async (ticketId) => {
+            const result = await Swal.fire({
+                title: 'Tem certeza?',
+                text: 'Esta ação não poderá ser desfeita!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_URL}/api/ticket/${ticketId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Excluído!', 'Ticket excluído com sucesso!', 'success');
+                        await loadTickets();
+                    } else {
+                        Swal.fire('Erro!', 'Erro ao excluir ticket!', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Erro!', 'Erro ao excluir ticket!', 'error');
+                }
+            }
+        };
+        
+        // Helper Functions
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+        }
+        
+        function logout() {
+            Swal.fire({
+                title: 'Sair do Sistema?',
+                text: 'Você será desconectado!',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, sair',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    authToken = null;
+                    currentUser = null;
+                    document.getElementById('loginContainer').classList.remove('hidden');
+                    document.getElementById('mainApp').classList.add('hidden');
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPassword').value = '';
+                    Swal.fire('Até logo!', 'Você saiu do sistema.', 'success');
+                }
+            });
+        }
+        
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
