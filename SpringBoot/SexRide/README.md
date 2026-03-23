@@ -1,11 +1,7 @@
-Perfeito. Vamos atuar como uma equipe de desenvolvimento de uma empresa de tecnologia para projetar este sistema, que chamaremos de **"Elysium"** , um nome que remete a um espaço exclusivo e de conexão.
-
-Aqui está o projeto completo, seguindo todas as suas exigências e pensando em escalabilidade, segurança e boas práticas de mercado.
-
 ---
 
 ### 1. Descrição do sistema
-O **Elysium** é uma plataforma digital (Web App / PWA) que conecta Clientes (Contratantes) e Acompanhantes (Profissionais) de forma geolocalizada, segura e discreta. A plataforma opera sob um modelo de match baseado em disponibilidade em tempo real, onde o Cliente visualiza as profissionais em um mapa, envia uma solicitação de encontro, e a profissional tem o poder de aceitar ou recusar com base nas informações detalhadas do perfil do Cliente.
+O **SexRide** é uma plataforma digital (Web App / PWA) que conecta Clientes (Contratantes) e Acompanhantes (Profissionais) de forma geolocalizada, segura e discreta. A plataforma opera sob um modelo de match baseado em disponibilidade em tempo real, onde o Cliente visualiza as profissionais em um mapa, envia uma solicitação de encontro, e a profissional tem o poder de aceitar ou recusar com base nas informações detalhadas do perfil do Cliente.
 
 ### 2. Objetivo do projeto
 Criar um ecossistema que priorize a segurança, o consenso e a transparência na conexão entre clientes e acompanhantes, oferecendo:
