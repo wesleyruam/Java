@@ -217,55 +217,96 @@ A arquitetura será **Monolítica Modular** (também conhecida como *Modular Mon
 ### 13. Estrutura de pastas do backend (Spring Boot)
 
 ```
-src/main/java/com/nexusbank/
-├── NexusBankApplication.java
-├── config/
-│   ├── SecurityConfig.java
-│   ├── JwtConfig.java
-│   ├── RedisConfig.java
-│   └── SwaggerConfig.java
-├── controller/
-│   ├── AuthController.java
-│   ├── UserController.java
-│   ├── AccountController.java
-│   └── TransactionController.java
-├── dto/
-│   ├── request/
-│   │   ├── RegisterRequest.java
-│   │   ├── LoginRequest.java
-│   │   ├── TransferRequest.java
-│   │   └── ...
-│   └── response/
-│       ├── AccountResponse.java
-│       ├── TransactionResponse.java
-│       └── ...
-├── entity/
-│   ├── User.java
-│   ├── Account.java
-│   ├── Transaction.java
-│   └── Bill.java
-├── repository/
-│   ├── UserRepository.java
-│   ├── AccountRepository.java
-│   ├── TransactionRepository.java
-│   └── ...
-├── service/
-│   ├── AuthService.java
-│   ├── UserService.java
-│   ├── AccountService.java
-│   ├── TransactionService.java
-│   └── impl/
-│       └── ...
-├── exception/
-│   ├── GlobalExceptionHandler.java
-│   ├── BusinessException.java
-│   └── ...
-├── security/
-│   ├── JwtAuthenticationFilter.java
-│   ├── JwtTokenProvider.java
-│   └── CustomUserDetailsService.java
-└── util/
-    └── IdempotencyUtil.java
+├── main
+│   ├── java
+│   │   └── com
+│   │       └── nexusbank
+│   │           ├── config
+│   │           │   ├── DataLoader.java
+│   │           │   ├── JwtAuthenticationEntryPoint.java
+│   │           │   ├── PostgreSQLEnumType.java
+│   │           │   ├── RateLimitingFilter.java
+│   │           │   ├── SecurityConfig.java
+│   │           │   └── TokenCleanupScheduler.java
+│   │           ├── controller
+│   │           │   ├── AccountController.java
+│   │           │   ├── AuthController.java
+│   │           │   ├── TransactionController.java
+│   │           │   └── UserController.java
+│   │           ├── dto
+│   │           │   ├── request
+│   │           │   │   ├── DepositRequest.java
+│   │           │   │   ├── LoginRequest.java
+│   │           │   │   ├── PaymentRequest.java
+│   │           │   │   ├── RefreshTokenRequest.java
+│   │           │   │   ├── RegisterRequest.java
+│   │           │   │   ├── TransferRequest.java
+│   │           │   │   └── UpdateUserRequest.java
+│   │           │   └── response
+│   │           │       ├── AccountResponse.java
+│   │           │       ├── ApiResponse.java
+│   │           │       ├── AuthResponse.java
+│   │           │       ├── BalanceResponse.java
+│   │           │       ├── PagedResponse.java
+│   │           │       ├── TransactionResponse.java
+│   │           │       └── UserResponse.java
+│   │           ├── entity
+│   │           │   ├── Account.java
+│   │           │   ├── Bill.java
+│   │           │   ├── RefreshToken.java
+│   │           │   ├── Transaction.java
+│   │           │   └── User.java
+│   │           ├── enums
+│   │           │   ├── AccountType.java
+│   │           │   ├── BillStatus.java
+│   │           │   ├── TransactionStatus.java
+│   │           │   ├── TransactionType.java
+│   │           │   ├── UserRole.java
+│   │           │   └── UserStatus.java
+│   │           ├── exception
+│   │           │   ├── BusinessException.java
+│   │           │   ├── ErrorResponse.java
+│   │           │   └── GlobalExceptionHandler.java
+│   │           ├── NexusBankApplication.java
+│   │           ├── repository
+│   │           │   ├── AccountRepository.java
+│   │           │   ├── BillRepository.java
+│   │           │   ├── RefreshTokenRepository.java
+│   │           │   ├── TransactionRepository.java
+│   │           │   └── UserRepository.java
+│   │           ├── security
+│   │           │   ├── CustomUserDetailsService.java
+│   │           │   ├── JwtAuthenticationFilter.java
+│   │           │   └── JwtTokenProvider.java
+│   │           ├── service
+│   │           │   └── impl
+│   │           │       ├── AccountService.java
+│   │           │       ├── AuthService.java
+│   │           │       ├── TransactionService.java
+│   │           │       └── UserService.java
+│   │           └── util
+│   │               ├── AccountNumberGenerator.java
+│   │               ├── CpfUtil.java
+│   │               └── IdempotencyUtil.java
+│   └── resources
+│       ├── application.properties
+│       ├── application-test.yml
+│       ├── application.yml
+│       ├── db
+│       ├── static
+│       └── templates
+└── test
+    └── java
+        └── com
+            └── nexusbank
+                ├── controller
+                │   ├── AccountControllerTest.java
+                │   ├── AuthControllerTest.java
+                │   ├── TransactionControllerTest.java
+                │   └── UserControllerTest.java
+                ├── NexusbankApplicationTests.java
+                ├── NexusBankIntegrationTest.java
+                └── SimpleTest.java
 ```
 
 ### 14. Padrão de resposta da API
